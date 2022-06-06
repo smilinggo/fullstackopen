@@ -1,0 +1,2 @@
+browser-->server: HTTP Post https://studies.cs.helsinki.fi/exampleapp/new_note_spa
+server-->browser: HTTP Status code 201
