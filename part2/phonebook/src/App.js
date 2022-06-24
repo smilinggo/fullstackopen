@@ -4,6 +4,7 @@ import Header from './components/Header';
 import PersonForm from "./components/PersonForm";
 import People from "./components/People";
 import Filter from './components/Filter';
+import Notification from "./components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -11,6 +12,8 @@ const App = () => {
   const [newNumber, setNewNumber] = useState("");
   const [update, setUpdate] = useState("");
   const [newFilterValue, setNewFilterValue] = useState("");
+  const [notificationMessage, setNotificationMessage] = useState();
+  const [MessageColor, setMessageColor] = useState();
 
   useEffect(() => {
     personService.getAll().then((initialPeople) => {
@@ -44,7 +47,19 @@ const App = () => {
           number: newNumber,
           id: replacementId,
         };
-        personService.update(replacementId, personObject);
+        personService.update(replacementId, personObject).then(res =>{
+        setNewName("")
+        setNewNumber("")})
+        .catch(error => {
+          setNotificationMessage(`Information of  '${newName}' has already been removed from server`);
+          setMessageColor("error");
+          setTimeout(() => {
+            setNotificationMessage(null);
+            setMessageColor(null);
+          }, 10000);
+        })
+
+
       }
     } else {
       event.preventDefault();
@@ -60,6 +75,12 @@ const App = () => {
         setNewNumber("");
       });
     }
+    setNotificationMessage(`Entry '${newName}' was added to server`);
+    setMessageColor('success')
+    setTimeout(() => {
+      setNotificationMessage(null);
+      setMessageColor(null)
+    }, 5000);
   };
 
   const handlePersonChange = (event) => {
@@ -77,12 +98,14 @@ const App = () => {
   const deleteSelectedPerson = (id) => {
     personService.deletePerson(id).then((res) => {
       setUpdate(id);
-    });
+    })
   };
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification displayMessage={notificationMessage} message={notificationMessage}
+      classSwitch={MessageColor} />
       <Filter filtervalue={newFilterValue} filterChange={handleFilterChange} />
       <Header text="add a new" />
       <PersonForm
